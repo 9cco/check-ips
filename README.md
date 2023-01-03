@@ -12,6 +12,20 @@ The IPs should each be placed on a separate line in the input-file.
 3. Create a folder in the repository folder called `credentials`
 4. Create a file in this folder called `virustotal_api_key.txt` and paste your api key in this file.
 
+### Optional PowerShell integration
+
+In order to be able to call the script from any folder in PowerShell: modify your
+PowerShell profile. To find your PowerShell profile run `PS> echo $profile`. Then
+open this location with a text-editor and paste in the following code
+```PowerShell
+function check_ips {
+	$script_path = "<path to check_ips.py file>"
+	py $script_path $args
+}
+```
+where you insert the path where you have placed the script in. Now restart PowerShell
+and you should be able to run `check_ips` for anywhere (even without having that pesky `py` in front).
+
 
 ## Use
 
