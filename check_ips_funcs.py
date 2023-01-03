@@ -4,10 +4,15 @@ import re
 import requests
 import time
 
-from aux_funcs import eprint
+# Function for printing to stderr
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
+# Returns a string with the API key if it can find it in the file credentials/virustotal_api_key.txt
+# relative to the script path.
 def getAPIKey():
-    path = "credentials/virustotal_api_key.txt"
+    dir_path = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
+    path = dir_path + "/credentials/virustotal_api_key.txt"
     if os.path.exists(path):
         with open(path, "r") as file:
             api_key = file.read()
@@ -15,7 +20,8 @@ def getAPIKey():
     else:
         eprint("Could not find api key at: " + path)
         exit(-2)
-        
+
+# Returns an array containing all IPv4 addresses found in the input file.
 def readInputFile(input_file):
     ipv4_regex = "((?:[01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\.(?:[01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\.(?:[01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\.(?:[01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5]))\n"
     
@@ -27,7 +33,9 @@ def readInputFile(input_file):
     else:
         eprint("Could not find input file at: " + input_file)
         exit(-2)
-        
+
+# Queries the Virustotal api and determines if the IP has been reported as malicious or suspicious by any vendors.
+# Returns True if it has not been reported (i.e. it is clean) and False if not.
 def ipIsClean(ip, api_key):
     headers = { "x-apikey": api_key }
     res = requests.get(url=f"https://www.virustotal.com/api/v3/ip_addresses/{ip}", headers=headers)
@@ -36,6 +44,7 @@ def ipIsClean(ip, api_key):
     if res.status_code != 200:
         eprint(f"ERROR: received status code {res.status_code} when requesting ip {ip}")
     
+    #print(f"Checking IP {ip}")
     res_json = res.json()
     statistics = res_json['data']['attributes']['last_analysis_stats']
     
@@ -44,11 +53,14 @@ def ipIsClean(ip, api_key):
     else:
         return True
 
+# Takes a list of IPs and writes them to ostream which is by default set to stdout, but could be a file stream.
 def writeOutputFile(sus_ips, ostream=sys.stdout):
     for ip in sus_ips:
         print(ip, file=ostream)
     return
 
+# Takes an input file, reads IPs from this file and checks them against Virustotal. Prints
+# reported IPs to ostream.
 def checkIPsFromFile(input_file, limited=False, ostream=sys.stdout):
     
     api_key = getAPIKey()
@@ -81,6 +93,7 @@ def checkIPsFromFile(input_file, limited=False, ostream=sys.stdout):
         print("Suspiscious / malicious IPs detected:")
         for ip in sus_ips:
             print(ip)
+        print()
         
         if ostream != sys.stdout:
             writeOutputFile(sus_ips, ostream)

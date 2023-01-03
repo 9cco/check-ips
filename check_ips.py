@@ -2,8 +2,7 @@ import sys
 import getopt
 import os
 
-from check_ips_funcs import checkIPsFromFile
-from aux_funcs import eprint
+from check_ips_funcs import checkIPsFromFile, eprint
 
 def printHelp():
     eprint("py check_ips.py -i <filename> [--throttle] [--output <filename>]")
@@ -39,6 +38,7 @@ def main(argv):
     if input_file == None:
         eprint("ERROR: No input file given")
         printHelp()
+        exit(2)
     
     # If no output file is specified, generate one based on the input file.
     if output_file==None:

@@ -17,7 +17,7 @@ The IPs should each be placed on a separate line in the input-file.
 
 Syntax:
 ```bash
-py check_ips.py -i <input filename> [--throttle] [-o <output filename>]
+py check_ips.py -i|--input <input filename> [--throttle] [-o|--output <output filename>]
 ```
 
 
